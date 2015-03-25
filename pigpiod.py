@@ -1,5 +1,8 @@
 #!/usr/bin/python
 import os, sys, time, argparse, signal, ctypes, socket, threading
+import RPi.GPIO as gpio
+
+pins = {0:11, 1:13, 2:15, 3:16}
 
 # tcp socket to listen
 soc = None
@@ -25,9 +28,11 @@ def quit(sig, fr):
 	sys.exit(0)
 
 def gpio_set(out):
+	gpio.output(pins[out], gpio.HIGH)
 	tsprint("%d ON" % out)
 
 def gpio_reset(out):
+	gpio.output(pins[out], gpio.LOW)
 	tsprint("%d OFF" % out)
 
 def process_cmd(c):
@@ -105,6 +110,13 @@ except socket.error as err:
 soc.listen(1)
 
 tsprint("Daemon started")
+
+# use board pins numbers
+gpio.setmode(gpio.BOARD)
+
+# configure pins as outputs
+for out in pins.values():
+	gpio.setup(out, gpio.OUT)
 
 while 1:
 	conn = None
