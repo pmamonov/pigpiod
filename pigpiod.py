@@ -27,6 +27,7 @@ def quit(sig, fr):
 		soc.close()
 		tsprint("Close socket")
 	tsprint("Daemon exits")
+	sys.stdout.flush()
 	sys.exit(0)
 
 def gpio_set(out):
