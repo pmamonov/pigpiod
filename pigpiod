@@ -1,0 +1,55 @@
+#!/bin/sh
+
+### BEGIN INIT INFO
+# Provides:		pigpiod
+# Required-Start:	$remote_fs
+# Required-Stop:	$remote_fs
+# Should-Start:		$network
+# Should-Stop:
+# Default-Start:	2 3 4 5
+# Default-Stop:		0 1 6
+# Short-Description:	rpi gpio daemon
+# Description:		rpi gpio daemon
+### END INIT INFO
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+DAEMON_SBIN=/home/pi/pigpiod.py
+NAME=pigpiod
+DESC="rpi gpio daemon"
+PIDFILE=/var/run/pigpiod.pid
+
+[ -x "$DAEMON_SBIN" ] || exit 0
+
+DAEMON_OPTS="-d -x $PIDFILE -l /var/log/pigpiod.log"
+
+. /lib/lsb/init-functions
+
+case "$1" in
+  start)
+	log_daemon_msg "Starting $DESC" "$NAME"
+	start-stop-daemon --start --exec "$DAEMON_SBIN" \
+		--pidfile "$PIDFILE" -- $DAEMON_OPTS
+	log_end_msg "$?"
+	;;
+  stop)
+	log_daemon_msg "Stopping $DESC" "$NAME"
+	start-stop-daemon --stop --pidfile "$PIDFILE"
+	log_end_msg "$?"
+	;;
+  restart)
+  	$0 stop
+	sleep 8
+	$0 start
+	;;
+  status)
+	status_of_proc "$DAEMON_SBIN" "$NAME"
+	exit $?
+	;;
+  *)
+	N=/etc/init.d/$NAME
+	echo "Usage: $N {start|stop|restart|force-reload|reload|status}" >&2
+	exit 1
+	;;
+esac
+
+exit 0
