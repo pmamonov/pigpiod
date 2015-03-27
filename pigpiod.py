@@ -4,6 +4,8 @@ import RPi.GPIO as gpio
 
 pins = {0:11, 1:13, 2:15, 3:16}
 
+timers = map(lambda i: None, range(len(pins)))
+
 # tcp socket to listen
 soc = None
 
@@ -43,8 +45,12 @@ def process_cmd(c):
 		if t[0] == 'enable':
 			try:
 				out, tim = map(int, t[1:])
+				if type(timers[out]) is threading._Timer:
+					timers[out].cancel()
+					timers[out].join()
 				gpio_set(out)
-				threading.Timer(1e-3 * tim, lambda o=out: gpio_reset(o)).start()
+				timers[out] = threading.Timer(1e-3 * tim, lambda o=out: gpio_reset(o))
+				timers[out].start()
 				ret = "OK"
 			except:
 				pass
