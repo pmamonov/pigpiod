@@ -97,8 +97,8 @@ signal.signal(signal.SIGINT, quit)
 # redirect stdout,stderr to log file
 sys.stdin = open('/dev/null', 'r')
 if args.log:
-	sys.stdout = open(args.log, 'w', 0)
-	sys.stderr = open(args.log, 'w', 0)
+	sys.stdout = open(args.log, 'a', 0)
+	sys.stderr = sys.stdout
 
 # write pid to file
 f = open(args.pidf, 'w')
