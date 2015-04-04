@@ -2,6 +2,8 @@
 import os, sys, time, argparse, signal, ctypes, socket, threading
 import RPi.GPIO as gpio
 
+TIMEOUT = 6.0
+
 pins = {0:11, 1:13, 2:15, 3:16}
 
 timers = map(lambda i: None, range(len(pins)))
@@ -127,11 +129,17 @@ for out in pins.values():
 
 while 1:
 	conn = None
+	tsprint("Wait for connection @ %s:%d" % (args.iface, args.port))
 	conn, addr = soc.accept()
+	conn.settimeout(TIMEOUT)
 	tsprint("Accept connection from %s" % str(addr))
 	buf = ''
 	while 1:
-		d = conn.recv(4096)
+		try:
+			d = conn.recv(4096)
+		except Exception as e:
+			tsprint("Connection reset: %s" % str(e))
+			break
 		if not d:
 			break
 		buf += d
